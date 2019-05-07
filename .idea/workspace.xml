@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="603f257a-f9eb-4ae7-b95c-ee1f80126a77" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/key-keeper" beforeDir="false" afterPath="$PROJECT_DIR$/key-keeper" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/sqlite/SQLiteManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/sqlite/SQLiteManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/target/" />
@@ -27,10 +26,10 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/sqlite/SQLiteManager.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="450">
+            <state relative-caret-position="180">
               <caret line="42" column="54" selection-start-line="42" selection-start-column="54" selection-end-line="42" selection-end-column="54" />
             </state>
           </provider>
@@ -50,6 +49,15 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="270">
               <caret line="18" selection-start-line="18" selection-end-line="18" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="510">
+              <caret line="34" selection-start-line="34" selection-end-line="34" />
             </state>
           </provider>
         </entry>
@@ -105,6 +113,7 @@
         <option value="$PROJECT_DIR$/test/sqlite/SQLiteManagerTest.java" />
         <option value="$PROJECT_DIR$/src/utils/KeyKeeperException.java" />
         <option value="$PROJECT_DIR$/src/sqlite/SQLiteManager.java" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -279,17 +288,11 @@
       <option name="presentableId" value="Default" />
       <updated>1557232475445</updated>
       <workItem from="1557232478134" duration="4172000" />
-      <workItem from="1557236688601" duration="5415000" />
+      <workItem from="1557236688601" duration="5793000" />
     </task>
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="Run_tests - 2019.05.07 at 16h 52m 52s.xml">
-      <configuration name="Run tests" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="Run_tests - 2019.05.07 at 16h 57m 57s.xml">
-      <configuration name="Run tests" configurationId="JUnit" />
-    </history-entry>
     <history-entry file="Run_tests - 2019.05.07 at 16h 58m 43s.xml">
       <configuration name="Run tests" configurationId="JUnit" />
     </history-entry>
@@ -314,9 +317,15 @@
     <history-entry file="Run_tests - 2019.05.07 at 17h 14m 40s.xml">
       <configuration name="Run tests" configurationId="JUnit" />
     </history-entry>
+    <history-entry file="Run_tests - 2019.05.07 at 17h 15m 18s.xml">
+      <configuration name="Run tests" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="Run_tests - 2019.05.07 at 17h 17m 06s.xml">
+      <configuration name="Run tests" configurationId="JUnit" />
+    </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="9587000" />
+    <option name="totallyTimeSpent" value="9965000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
@@ -324,14 +333,14 @@
     <layout>
       <window_info id="Image Layers" />
       <window_info id="Capture Tool" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.25266525" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.25266525" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Designer" order="2" />
       <window_info id="UI Designer" order="3" />
       <window_info id="Favorites" order="4" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32936078" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.32936078" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -437,10 +446,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/sqlite/SQLiteManagerTest.java">
+    <entry file="file://$PROJECT_DIR$/src/keykeeper/Main.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="18" selection-start-line="18" selection-end-line="18" />
+        <state relative-caret-position="135">
+          <caret line="9" column="1" selection-start-line="9" selection-start-column="1" selection-end-line="9" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/sqlite/SQLiteManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="42" column="54" selection-start-line="42" selection-start-column="54" selection-end-line="42" selection-end-column="54" />
         </state>
       </provider>
     </entry>
@@ -451,17 +467,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/keykeeper/Main.java">
+    <entry file="file://$PROJECT_DIR$/test/sqlite/SQLiteManagerTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="9" column="1" selection-start-line="9" selection-start-column="1" selection-end-line="9" selection-end-column="1" />
+        <state relative-caret-position="270">
+          <caret line="18" selection-start-line="18" selection-end-line="18" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/sqlite/SQLiteManager.java">
+    <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="42" column="54" selection-start-line="42" selection-start-column="54" selection-end-line="42" selection-end-column="54" />
+        <state relative-caret-position="510">
+          <caret line="34" selection-start-line="34" selection-end-line="34" />
         </state>
       </provider>
     </entry>
