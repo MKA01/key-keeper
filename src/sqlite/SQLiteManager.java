@@ -65,7 +65,7 @@ public class SQLiteManager {
     }
 
     private void tryToGetDbConnection() throws SQLException {
-        String connectionString = "jdbc:sqlite:key-keeper";
+        String connectionString = "jdbc:sqlite:db/key-keeper";
         connection = DriverManager.getConnection(connectionString);
 
         if (connection != null) {
