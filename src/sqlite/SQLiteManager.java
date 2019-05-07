@@ -28,7 +28,7 @@ public class SQLiteManager {
         String formattedTableFields = tableFields.toString().replace("[", "(").replace("]", ")");
 
 
-        String createTableSql = "CREATE TABLE " + tableName + formattedTableFields + ";";
+        String createTableSql = "CREATE TABLE " + tableName + formattedTableFields;
 
         executeStatement(createTableSql);
     }
