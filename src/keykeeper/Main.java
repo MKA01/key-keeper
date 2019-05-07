@@ -1,6 +1,6 @@
-package key.keeper;
+package keykeeper;
 
-import gui.MainWindow;
+import keykeeper.gui.MainWindow;
 
 public class Main {
 
