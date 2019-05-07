@@ -6,6 +6,7 @@ import utils.KeyKeeperException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SQLiteManagerTest {
@@ -23,7 +24,7 @@ class SQLiteManagerTest {
     }
 
     @Test
-    void createTable() {
+    void createAndDeleteTable() {
         String tableName = "test_user_table";
         List<String> tableFields = new ArrayList<>();
 
@@ -31,32 +32,35 @@ class SQLiteManagerTest {
         tableFields.add("login text NOT NULL");
 
         sqLiteManager.createTable(tableName, tableFields);
+
+        assertTrue(sqLiteManager.checkIfTableExists(tableName));
+
+        sqLiteManager.deleteTable(tableName);
+
+        assertFalse(sqLiteManager.checkIfTableExists(tableName));
     }
 
     @Test
     void createTableNoFields() {
+        String tableName = "test_user_table";
+
         Assertions.assertThrows(KeyKeeperException.class, () -> {
-            String tableName = "test_user_table";
             List<String> tableFields = new ArrayList<>();
 
             sqLiteManager.createTable(tableName, tableFields);
         });
-    }
 
-    @Test
-    void deleteTable() {
-        String tableName = "test_user_table";
-
-        sqLiteManager.deleteTable(tableName);
+        assertFalse(sqLiteManager.checkIfTableExists(tableName));
     }
 
     @Test
     void deleteTableNotExisting() {
-        Assertions.assertThrows(KeyKeeperException.class, () -> {
-            String tableName = "this_table_not_exists";
+        String tableName = "this_table_not_exists";
 
+        Assertions.assertThrows(KeyKeeperException.class, () -> {
             sqLiteManager.deleteTable(tableName);
         });
-    }
 
+        assertFalse(sqLiteManager.checkIfTableExists(tableName));
+    }
 }
