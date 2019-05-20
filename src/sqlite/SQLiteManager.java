@@ -4,8 +4,8 @@ import org.apache.log4j.Logger;
 import utils.KeyKeeperException;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class SQLiteManager {
 
@@ -22,83 +22,93 @@ public class SQLiteManager {
     }
 
     public void createTable(String tableName, List<String> tableFields) {
-        String formattedTableFields = tableFields.toString().replace("[", "(").replace("]", ")");
+        String formattedTableFields = tableFields.stream().map(String::valueOf).collect(Collectors.joining(",", "(", ")"));
         String createTableSql = "CREATE TABLE " + tableName + formattedTableFields;
 
         executeStatement(createTableSql);
     }
 
-    public void deleteTable(String tableName) {
-        String deleteTableSql = "DROP TABLE " + tableName;
+    public void dropTable(String tableName) {
+        String dropTableSql = "DROP TABLE " + tableName;
 
-        executeStatement(deleteTableSql);
+        executeStatement(dropTableSql);
     }
 
-    boolean isConnectionEstablished() {
+    public void insertIntoTable(String tableName, String tableColumns, String[] values) {
+        for (int i = 0; i < values.length; i++) {
+            values[i] = "'" + values[i] + "'";
+        }
+
+        String formattedValues = Arrays.stream(values).map(String::valueOf).collect(Collectors.joining(",", "(", ")"));
+        String insertIntoSql = "INSERT INTO " + tableName + tableColumns + " VALUES" + formattedValues;
+
+        executeStatement(insertIntoSql);
+    }
+
+    public List<List<Object>> selectFromTable(String tableName) {
+        String selectFromSql = "SELECT * FROM " + tableName;
+
+        return executeQuery(selectFromSql);
+    }
+
+    public List<List<Object>> selectFromTableWithCondition(String tableName, String condition) {
+        String selectFromWithConditionSql = tableName + " WHERE " + condition;
+
+        return selectFromTable(selectFromWithConditionSql);
+    }
+
+    public void updateTable(String tableName, String keyName, Object keyValue, Map<String, Object> values) {
+        StringBuilder updateSql = new StringBuilder("UPDATE " + tableName + " SET ");
+
+        for (Map.Entry<String, Object> entry : values.entrySet()) {
+            updateSql.append(entry.getKey()).append(" = ").append("'").append(entry.getValue()).append("'").append(",");
+        }
+
+        updateSql.deleteCharAt(updateSql.length() - 1);
+
+        updateSql.append(" WHERE ").append(keyName).append(" = '").append(keyValue).append("'");
+
+        executeStatement(updateSql.toString());
+    }
+
+    public void deleteFromTable(String tableName, String keyName, Object keyValue) {
+        String deleteFromSql = "DELETE FROM " + tableName + " WHERE " + keyName + " = '" + keyValue + "'";
+
+        executeStatement(deleteFromSql);
+    }
+
+    public boolean isConnectionEstablished() {
         return (connection != null);
     }
 
-    boolean checkIfTableExists(String tableName) {
+    public boolean checkIfTableExists(String tableName) {
         String query = "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = '" + tableName + "'";
-        List<String> result = executeQuery(query);
+        List<List<Object>> result = executeQuery(query);
 
-        return Integer.valueOf(result.get(0)) > 0;
+        return Integer.valueOf(result.get(0).get(0).toString()) > 0;
     }
 
-    private List<String> executeQuery(String query) {
-        logger.info("Trying to execute query...");
-        logger.info("Query is: " + query);
+    private void getDbConnection() {
+        logger.info("Trying to get connection...");
 
         try {
-            return tryToExecuteQuery(query);
+           tryToGetDbConnection();
         } catch (SQLException ex) {
-            throw new KeyKeeperException("An error has occurred while executing query!", ex);
+            logger.error("An error has occurred while trying to get connection!", ex);
         }
-
     }
 
-    private List<String> tryToExecuteQuery(String query) throws SQLException {
-        Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery(query);
-        List<String> result = convertResultSetToList(resultSet);
+    private void tryToGetDbConnection() throws  SQLException{
+        String connectionString = "jdbc:sqlite:db/key-keeper";
+        connection = DriverManager.getConnection(connectionString);
 
-        statement.close();
-
-        logger.info("Query executed!");
-
-        return result;
-    }
-
-    private List<String> convertResultSetToList(ResultSet resultSet) {
-        List<String> result = new ArrayList<>();
-
-        try {
-            tryToConvertResultSetToList(resultSet, result);
-        } catch (SQLException ex) {
-            throw new KeyKeeperException("An error has occurred while converting result!", ex);
+        if (connection != null) {
+            logger.info("Connection to database established! Driver name is: " + connection.getMetaData().getDriverName());
         }
-
-        return result;
-    }
-
-    private void tryToConvertResultSetToList(ResultSet resultSet, List<String> result) throws SQLException {
-        ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
-        int columnCount = resultSetMetaData.getColumnCount();
-
-        while (resultSet.next()) {
-            for (int i = 1; i <= columnCount; ++i) {
-                logger.error("Result: " + resultSet.getString(i));
-                result.add(resultSet.getString(i));
-
-            }
-        }
-
-        logger.info("Result size: " + result.size());
     }
 
     private void executeStatement(String sql) {
-        logger.info("Trying to execute statement...");
-        logger.info("Statement is: " + sql);
+        logger.info("Trying to execute statement...\nStatement is: " + sql);
 
         try {
             tryToExecuteStatement(sql);
@@ -116,24 +126,51 @@ public class SQLiteManager {
         logger.info("Statement executed!");
     }
 
-    private void getDbConnection() {
-        logger.info("Trying to get connection...");
+    private List<List<Object>> executeQuery(String sql) {
+        logger.info("Trying to execute query... \nQuery is: " + sql);
 
         try {
-            tryToGetDbConnection();
+            return tryToExecuteQuery(sql);
         } catch (SQLException ex) {
-            logger.error("An error has occurred while trying to get connection");
-            ex.printStackTrace();
+            throw new KeyKeeperException("An error has occurred while executing query!", ex);
         }
     }
 
-    private void tryToGetDbConnection() throws SQLException {
-        String connectionString = "jdbc:sqlite:db/key-keeper";
-        connection = DriverManager.getConnection(connectionString);
+    private List<List<Object>> tryToExecuteQuery(String sql) throws SQLException {
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+        List<List<Object>> result = convertResultSetToList(resultSet);
 
-        if (connection != null) {
-            DatabaseMetaData databaseMetaData = connection.getMetaData();
-            logger.info("Connection to database established! Driver name is: " + databaseMetaData.getDriverName());
+        statement.close();
+
+        logger.info("Query executed!");
+
+        return result;
+    }
+
+    private List<List<Object>> convertResultSetToList(ResultSet resultSet) {
+        try {
+            return tryToConvertResultSetToList(resultSet);
+        } catch (SQLException ex) {
+            throw new KeyKeeperException("An error has occurred while converting result to list!", ex);
         }
+    }
+
+    private List<List<Object>> tryToConvertResultSetToList(ResultSet resultSet) throws SQLException {
+        List<List<Object>> result = new ArrayList<>();
+        ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+        int columnCount = resultSetMetaData.getColumnCount();
+
+        while (resultSet.next()) {
+            List<Object> row = new ArrayList<>();
+
+            for (int i = 1; i <= columnCount; ++i) {
+                row.add(resultSet.getObject(i));
+            }
+
+            result.add(row);
+        }
+
+        return result;
     }
 }

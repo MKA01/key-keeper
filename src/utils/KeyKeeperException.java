@@ -16,8 +16,7 @@ public class KeyKeeperException extends RuntimeException {
 
     public KeyKeeperException(String message, Throwable cause) {
         super(message, cause);
-        logger.error(message);
-        logger.error(cause);
+        logger.error(message + "\n" + cause);
     }
 
     public KeyKeeperException(Throwable cause) {
@@ -27,7 +26,6 @@ public class KeyKeeperException extends RuntimeException {
 
     public KeyKeeperException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
-        logger.error(message);
-        logger.error(message);
+        logger.error(message + "\n" + cause);
     }
 }

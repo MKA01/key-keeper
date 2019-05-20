@@ -1,21 +1,30 @@
 package sqlite;
 
+import org.apache.log4j.Logger;
 import org.junit.jupiter.api.*;
 import utils.KeyKeeperException;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class SQLiteManagerTest {
 
     private SQLiteManager sqLiteManager;
+    private Logger logger = Logger.getLogger(SQLiteManagerTest.class);
 
     @BeforeEach
     void setUp() {
         sqLiteManager = SQLiteManager.getInstance();
+    }
+
+    @AfterEach
+    void tearDown() {
+        try {
+            sqLiteManager.dropTable("test_user_table");
+        } catch (KeyKeeperException ex) {
+            logger.info("Test tearDown failed because table was already deleted!");
+        }
     }
 
     @Test
@@ -35,13 +44,13 @@ class SQLiteManagerTest {
 
         assertTrue(sqLiteManager.checkIfTableExists(tableName));
 
-        sqLiteManager.deleteTable(tableName);
+        sqLiteManager.dropTable(tableName);
 
         assertFalse(sqLiteManager.checkIfTableExists(tableName));
     }
 
     @Test
-    void createTableNoFields() {
+    void createTableWithoutFields() {
         String tableName = "test_user_table";
 
         Assertions.assertThrows(KeyKeeperException.class, () -> {
@@ -54,13 +63,124 @@ class SQLiteManagerTest {
     }
 
     @Test
-    void deleteTableNotExisting() {
+    void deleteNotExistingTable() {
         String tableName = "this_table_not_exists";
 
         Assertions.assertThrows(KeyKeeperException.class, () -> {
-            sqLiteManager.deleteTable(tableName);
+            sqLiteManager.dropTable(tableName);
         });
 
         assertFalse(sqLiteManager.checkIfTableExists(tableName));
+    }
+
+    @Test
+    void insertIntoAndSelectAllFromTable() {
+        String tableName = "test_user_table";
+        String tableColumns = "(id, login)";
+        String[] values = {"1", "test1"};
+        String[] values2 = {"2", "test2"};
+        String[] values3 = {"3", "test3"};
+
+        createTestUserTable();
+
+        sqLiteManager.insertIntoTable(tableName, tableColumns, values);
+        sqLiteManager.insertIntoTable(tableName, tableColumns, values2);
+        sqLiteManager.insertIntoTable(tableName, tableColumns, values3);
+
+        List<List<Object>> result = sqLiteManager.selectFromTable(tableName);
+
+        assertEquals(3, result.size());
+        assertEquals(1, result.get(0).get(0));
+        assertEquals("test1", result.get(0).get(1));
+        assertEquals(2, result.get(1).get(0));
+        assertEquals("test2", result.get(1).get(1));
+        assertEquals(3, result.get(2).get(0));
+        assertEquals("test3", result.get(2).get(1));
+    }
+
+    @Test
+    void selectFromTableWithCondition() {
+        String tableName = "test_user_table";
+        String tableColumns = "(id, login)";
+        String[] values = {"1", "test1"};
+        String[] values2 = {"2", "test2"};
+        String[] values3 = {"3", "test3"};
+
+        createTestUserTable();
+
+        sqLiteManager.insertIntoTable(tableName, tableColumns, values);
+        sqLiteManager.insertIntoTable(tableName, tableColumns, values2);
+        sqLiteManager.insertIntoTable(tableName, tableColumns, values3);
+
+        List<List<Object>> result = sqLiteManager.selectFromTableWithCondition(tableName, "id = 2");
+
+        assertEquals(1, result.size());
+        assertEquals(2, result.get(0).get(0));
+        assertEquals("test2", result.get(0).get(1));
+
+        logger.info(result);
+    }
+
+    @Test
+    void updateDataFromTable() {
+        String tableName = "test_user_table";
+        String tableColumns = "(id, login)";
+        String[] values = {"1", "test1"};
+        Map<String, Object> updateValues = new HashMap<>();
+
+        updateValues.put("login", "updateTest1");
+
+        createTestUserTable();
+
+        sqLiteManager.insertIntoTable(tableName, tableColumns, values);
+
+        List<List<Object>> result = sqLiteManager.selectFromTable(tableName);
+
+        assertEquals(1, result.size());
+        assertEquals(1, result.get(0).get(0));
+        assertEquals("test1", result.get(0).get(1));
+
+        sqLiteManager.updateTable(tableName, "id", 1, updateValues);
+
+        result = sqLiteManager.selectFromTable(tableName);
+
+        assertEquals(1, result.size());
+        assertEquals(1, result.get(0).get(0));
+        assertEquals("updateTest1", result.get(0).get(1));
+    }
+
+    @Test
+    void deleteFromTable() {
+        String tableName = "test_user_table";
+        String tableColumns = "(id, login)";
+        String[] values = {"1", "test1"};
+
+        createTestUserTable();
+
+        sqLiteManager.insertIntoTable(tableName, tableColumns, values);
+
+        List<List<Object>> result = sqLiteManager.selectFromTable(tableName);
+
+        assertEquals(1, result.size());
+        assertEquals(1, result.get(0).get(0));
+        assertEquals("test1", result.get(0).get(1));
+
+        sqLiteManager.deleteFromTable(tableName, "id", "1");
+
+        result = sqLiteManager.selectFromTable(tableName);
+
+        assertEquals(0, result.size());
+    }
+
+    private void createTestUserTable() {
+        String tableName = "test_user_table";
+        List<String> tableFields = new ArrayList<>();
+
+        tableFields.add("id integer PRIMARY KEY");
+        tableFields.add("login text NOT NULL");
+
+        sqLiteManager.createTable(tableName, tableFields);
+
+        assertTrue(sqLiteManager.checkIfTableExists(tableName));
     }
 }
