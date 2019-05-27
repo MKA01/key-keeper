@@ -66,9 +66,7 @@ class SQLiteManagerTest {
     void deleteNotExistingTable() {
         String tableName = "this_table_not_exists";
 
-        Assertions.assertThrows(KeyKeeperException.class, () -> {
-            sqLiteManager.dropTable(tableName);
-        });
+        Assertions.assertThrows(KeyKeeperException.class, () -> sqLiteManager.dropTable(tableName));
 
         assertFalse(sqLiteManager.checkIfTableExists(tableName));
     }
@@ -87,15 +85,15 @@ class SQLiteManagerTest {
         sqLiteManager.insertIntoTable(tableName, tableColumns, values2);
         sqLiteManager.insertIntoTable(tableName, tableColumns, values3);
 
-        List<List<Object>> result = sqLiteManager.selectFromTable(tableName);
+        Object[][] result = sqLiteManager.selectFromTable(tableName);
 
-        assertEquals(3, result.size());
-        assertEquals(1, result.get(0).get(0));
-        assertEquals("test1", result.get(0).get(1));
-        assertEquals(2, result.get(1).get(0));
-        assertEquals("test2", result.get(1).get(1));
-        assertEquals(3, result.get(2).get(0));
-        assertEquals("test3", result.get(2).get(1));
+        assertEquals(3, result.length);
+        assertEquals(1, result[0][0]);
+        assertEquals("test1", result[0][1]);
+        assertEquals(2, result[1][0]);
+        assertEquals("test2", result[1][1]);
+        assertEquals(3, result[2][0]);
+        assertEquals("test3", result[2][1]);
     }
 
     @Test
@@ -112,11 +110,11 @@ class SQLiteManagerTest {
         sqLiteManager.insertIntoTable(tableName, tableColumns, values2);
         sqLiteManager.insertIntoTable(tableName, tableColumns, values3);
 
-        List<List<Object>> result = sqLiteManager.selectFromTableWithCondition(tableName, "id = 2");
+        Object[][] result = sqLiteManager.selectFromTableWithCondition(tableName, "id = 2");
 
-        assertEquals(1, result.size());
-        assertEquals(2, result.get(0).get(0));
-        assertEquals("test2", result.get(0).get(1));
+        assertEquals(1, result.length);
+        assertEquals(2, result[0][0]);
+        assertEquals("test2", result[0][1]);
 
         logger.info(result);
     }
@@ -134,19 +132,19 @@ class SQLiteManagerTest {
 
         sqLiteManager.insertIntoTable(tableName, tableColumns, values);
 
-        List<List<Object>> result = sqLiteManager.selectFromTable(tableName);
+        Object[][] result = sqLiteManager.selectFromTable(tableName);
 
-        assertEquals(1, result.size());
-        assertEquals(1, result.get(0).get(0));
-        assertEquals("test1", result.get(0).get(1));
+        assertEquals(1, result.length);
+        assertEquals(1, result[0][0]);
+        assertEquals("test1", result[0][1]);
 
         sqLiteManager.updateTable(tableName, "id", 1, updateValues);
 
         result = sqLiteManager.selectFromTable(tableName);
 
-        assertEquals(1, result.size());
-        assertEquals(1, result.get(0).get(0));
-        assertEquals("updateTest1", result.get(0).get(1));
+        assertEquals(1, result.length);
+        assertEquals(1, result[0][0]);
+        assertEquals("updateTest1", result[0][1]);
     }
 
     @Test
@@ -159,17 +157,17 @@ class SQLiteManagerTest {
 
         sqLiteManager.insertIntoTable(tableName, tableColumns, values);
 
-        List<List<Object>> result = sqLiteManager.selectFromTable(tableName);
+        Object[][] result = sqLiteManager.selectFromTable(tableName);
 
-        assertEquals(1, result.size());
-        assertEquals(1, result.get(0).get(0));
-        assertEquals("test1", result.get(0).get(1));
+        assertEquals(1, result.length);
+        assertEquals(1, result[0][0]);
+        assertEquals("test1", result[0][1]);
 
         sqLiteManager.deleteFromTable(tableName, "id", "1");
 
         result = sqLiteManager.selectFromTable(tableName);
 
-        assertEquals(0, result.size());
+        assertEquals(0, result.length);
     }
 
     private void createTestUserTable() {

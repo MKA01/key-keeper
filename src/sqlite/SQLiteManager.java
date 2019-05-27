@@ -21,6 +21,19 @@ public class SQLiteManager {
         return ourInstance;
     }
 
+    public void createAppTables() {
+        String createUsersTableSql = "CREATE TABLE USERS(ID INTEGER PRIMARY KEY NOT NULL, LOGIN TEXT NOT NULL, PASSWORD TEXT NOT NULL)";
+        String createKeysTableSql = "CREATE TABLE KEYS(ID INTEGER PRIMARY KEY NOT NULL, USER_ID INTEGER NOT NULL, SERVICE TEXT NOT NULL, LOGIN TEXT NOT NULL, PASSWORD TEXT NOT NULL)";
+
+        if (!checkIfTableExists("USERS")) {
+            executeStatement(createUsersTableSql);
+        }
+
+        if (!checkIfTableExists("KEYS")) {
+            executeStatement(createKeysTableSql);
+        }
+    }
+
     public void createTable(String tableName, List<String> tableFields) {
         String formattedTableFields = tableFields.stream().map(String::valueOf).collect(Collectors.joining(",", "(", ")"));
         String createTableSql = "CREATE TABLE " + tableName + formattedTableFields;
@@ -45,13 +58,13 @@ public class SQLiteManager {
         executeStatement(insertIntoSql);
     }
 
-    public List<List<Object>> selectFromTable(String tableName) {
+    public Object[][] selectFromTable(String tableName) {
         String selectFromSql = "SELECT * FROM " + tableName;
 
         return executeQuery(selectFromSql);
     }
 
-    public List<List<Object>> selectFromTableWithCondition(String tableName, String condition) {
+    public Object[][] selectFromTableWithCondition(String tableName, String condition) {
         String selectFromWithConditionSql = tableName + " WHERE " + condition;
 
         return selectFromTable(selectFromWithConditionSql);
@@ -83,22 +96,22 @@ public class SQLiteManager {
 
     public boolean checkIfTableExists(String tableName) {
         String query = "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = '" + tableName + "'";
-        List<List<Object>> result = executeQuery(query);
+        Object[][] result = executeQuery(query);
 
-        return Integer.valueOf(result.get(0).get(0).toString()) > 0;
+        return Integer.valueOf(result[0][0].toString()) > 0;
     }
 
     private void getDbConnection() {
         logger.info("Trying to get connection...");
 
         try {
-           tryToGetDbConnection();
+            tryToGetDbConnection();
         } catch (SQLException ex) {
             logger.error("An error has occurred while trying to get connection!", ex);
         }
     }
 
-    private void tryToGetDbConnection() throws  SQLException{
+    private void tryToGetDbConnection() throws SQLException {
         String connectionString = "jdbc:sqlite:db/key-keeper";
         connection = DriverManager.getConnection(connectionString);
 
@@ -126,7 +139,7 @@ public class SQLiteManager {
         logger.info("Statement executed!");
     }
 
-    private List<List<Object>> executeQuery(String sql) {
+    private Object[][] executeQuery(String sql) {
         logger.info("Trying to execute query... \nQuery is: " + sql);
 
         try {
@@ -136,10 +149,10 @@ public class SQLiteManager {
         }
     }
 
-    private List<List<Object>> tryToExecuteQuery(String sql) throws SQLException {
+    private Object[][] tryToExecuteQuery(String sql) throws SQLException {
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery(sql);
-        List<List<Object>> result = convertResultSetToList(resultSet);
+        Object[][] result = convertResultSetToList(resultSet);
 
         statement.close();
 
@@ -148,7 +161,7 @@ public class SQLiteManager {
         return result;
     }
 
-    private List<List<Object>> convertResultSetToList(ResultSet resultSet) {
+    private Object[][] convertResultSetToList(ResultSet resultSet) {
         try {
             return tryToConvertResultSetToList(resultSet);
         } catch (SQLException ex) {
@@ -156,8 +169,8 @@ public class SQLiteManager {
         }
     }
 
-    private List<List<Object>> tryToConvertResultSetToList(ResultSet resultSet) throws SQLException {
-        List<List<Object>> result = new ArrayList<>();
+    private Object[][] tryToConvertResultSetToList(ResultSet resultSet) throws SQLException {
+        List<List<Object>> tempResult = new ArrayList<>();
         ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
         int columnCount = resultSetMetaData.getColumnCount();
 
@@ -168,7 +181,15 @@ public class SQLiteManager {
                 row.add(resultSet.getObject(i));
             }
 
-            result.add(row);
+            tempResult.add(row);
+        }
+
+        Object[][] result = new Object[tempResult.size()][columnCount];
+
+        for (int i = 0; i < tempResult.size(); i++) {
+            for (int j = 0; j < columnCount; j++) {
+                result[i][j] = tempResult.get(i).get(j);
+            }
         }
 
         return result;
