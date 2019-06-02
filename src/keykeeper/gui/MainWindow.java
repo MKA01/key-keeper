@@ -35,17 +35,17 @@ public class MainWindow implements ActionListener {
     private JPanel deletePanel;
     private JTextField addServiceField;
     private JTextField addLoginField;
-    private JPasswordField addPasswordField;
-    private JSpinner spinner1;
-    private JTextField textField1;
-    private JPasswordField passwordField1;
-    private JPasswordField passwordField2;
+    private JTextField addPasswordField;
+    private JSpinner editIdField;
+    private JTextField editServiceField;
     private JButton editButton;
     private JButton addButton;
-    private JSpinner spinner2;
+    private JSpinner removeIdField;
     private JButton deleteButton;
-    private Integer userId;
+    private JTextField editLoginField;
+    private JTextField editPasswordField;
     private boolean isPasswordShown;
+    private KeyUtils keyUtils;
 
     public MainWindow() {
         frame = new JFrame("Key Keeper");
@@ -67,18 +67,47 @@ public class MainWindow implements ActionListener {
         } else if (source == registerButton) {
             register();
         } else if (source == togglePasswordButton) {
-            if (!isPasswordShown) {
-                keyTable.addColumn(passwordColumn);
-                isPasswordShown = true;
-            } else {
-                keyTable.removeColumn(passwordColumn);
-                isPasswordShown = false;
-            }
+            setPasswordColumnVisibility();
+        } else if (source == addButton) {
+            keyUtils.addKey(addLoginField.getText(), addPasswordField.getText(), addServiceField.getText());
+        } else if (source == editButton) {
+            keyUtils.editKey((int) editIdField.getValue(), editLoginField.getText(), editPasswordField.getText(), editServiceField.getText());
+        } else if (source == deleteButton) {
+            keyUtils.deleteKey((int) removeIdField.getValue());
         }
     }
 
     public void showMessageDialog(String message) {
         JOptionPane.showMessageDialog(frame, message);
+    }
+
+    public void setPasswordColumn(TableColumn passwordColumn) {
+        try {
+            keyTable.removeColumn(this.passwordColumn);
+            keyTable.removeColumn(passwordColumn);
+        } catch (Exception ignored) {
+
+        }
+
+        this.passwordColumn = passwordColumn;
+    }
+
+    public void setPasswordColumnVisibility() {
+        if (!isPasswordShown) {
+            keyTable.addColumn(passwordColumn);
+            isPasswordShown = true;
+        } else {
+            keyTable.removeColumn(passwordColumn);
+            isPasswordShown = false;
+        }
+    }
+
+    public void fixPasswordColumnVisibility() {
+        if (isPasswordShown) {
+            keyTable.addColumn(passwordColumn);
+        } else {
+            keyTable.removeColumn(passwordColumn);
+        }
     }
 
     private void setWindowConfig() {
@@ -95,6 +124,9 @@ public class MainWindow implements ActionListener {
         loginButton.addActionListener(this);
         registerButton.addActionListener(this);
         togglePasswordButton.addActionListener(this);
+        addButton.addActionListener(this);
+        editButton.addActionListener(this);
+        deleteButton.addActionListener(this);
     }
 
     private void login() {
@@ -104,18 +136,18 @@ public class MainWindow implements ActionListener {
 
         Arrays.fill(password, '0');
 
-        userId = new AccountUtils(sqLiteManager, login, hashedPassword).login();
+        Integer userId = new AccountUtils(sqLiteManager, login, hashedPassword).login();
 
         if (userId != 0) {
             loginPanel.setVisible(false);
             appPanel.setVisible(true);
 
-            new KeyUtils(sqLiteManager, userId, keyTable).getKeys();
+            keyUtils = new KeyUtils(this, sqLiteManager, userId, keyTable);
 
-            passwordColumn = keyTable.getColumn("Password");
+            keyUtils.getKeys();
 
-            keyTable.removeColumn(passwordColumn);
             isPasswordShown = false;
+            fixPasswordColumnVisibility();
         } else {
             showMessageDialog("Login failed");
         }
